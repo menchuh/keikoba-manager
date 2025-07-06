@@ -4,15 +4,28 @@
 	"private": true,
 	"scripts": {
 		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
+		"dev": "wrangler dev --local --persist",
 		"start": "wrangler dev",
 		"test": "vitest",
-		"cf-typegen": "wrangler types"
+		"cf-typegen": "wrangler types",
+		"tail": "wrangler tail",
+		"generate": "drizzle-kit generate",
+		"local:migration": "wrangler d1 migrations apply keikoba-manager --local",
+		"remote:migration": "wrangler d1 migrations apply keikoba-manager --remote"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"drizzle-kit": "^0.31.1",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
 		"wrangler": "^4.20.0"
+	},
+	"dependencies": {
+		"@line/bot-sdk": "10.0.0",
+		"dayjs": "^1.11.13",
+		"drizzle-orm": "^0.44.2",
+		"hono": "^4.7.11",
+		"pino": "^9.7.0",
+		"ulid": "^3.0.1"
 	}
 }

@@ -1,26 +1,45 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { Hono, Env as BaseEnv } from 'hono';
+import groupRouter from './routes/groups';
+import teamRouter from './routes/teams';
+import authRouter from './routes/auth';
+import { jwtAuthMiddleware } from '../middleware/auth';
+import lineWebhookRouter from './routes/line';
+import userRouter from './routes/users';
+import practiceRouter from './routes/practices';
+import placeRouter from './routes/places';
 
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		const url = new URL(request.url);
-		switch (url.pathname) {
-			case '/message':
-				return new Response('Hello, World!');
-			case '/random':
-				return new Response(crypto.randomUUID());
-			default:
-				return new Response('Not Found', { status: 404 });
-		}
-	},
-} satisfies ExportedHandler<Env>;
+const app = new Hono<{ Bindings: Env }>();
+
+//---------------------------
+// ヘルスチェック
+//---------------------------
+app.get('/', (c) => c.text('Hello, Hono with TypeScript!'));
+
+//---------------------------
+// ログイン
+//---------------------------
+app.route('/login', authRouter);
+app.route('/users', userRouter);
+
+//---------------------------
+// API
+//---------------------------
+// middleware
+app.use('/api/*', jwtAuthMiddleware);
+// routes
+app.route('/api/groups', groupRouter);
+app.route('/api/places', placeRouter);
+app.route('/api/practices', practiceRouter);
+app.route('/api/teams', teamRouter);
+
+//---------------------------
+// Webhook
+//---------------------------
+app.route('/webhook/line', lineWebhookRouter);
+
+//---------------------------
+// 指定されたエンドポイントがなかった場合
+//---------------------------
+app.notFound((c) => c.text('お探しのページは見つかりませんでした', 404));
+
+export default app;

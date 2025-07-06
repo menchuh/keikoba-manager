@@ -7,15 +7,21 @@
 	"name": "keikoba-manager-3",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-06-17",
-	"compatibility_flags": [
-		"global_fetch_strictly_public"
-	],
+	"compatibility_flags": ["nodejs_compat"],
 	"assets": {
 		"directory": "./public"
 	},
 	"observability": {
 		"enabled": true
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "keikoba-manager",
+			"database_id": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+			"migrations_dir": "drizzle"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

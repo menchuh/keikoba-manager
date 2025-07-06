@@ -170,3 +170,20 @@ dist
 
 .dev.vars
 .wrangler/
+
+# mac
+
+.DS_Store
+
+# migrations
+
+drizzle/
+
+# Static Files
+
+images/
+documents/
+
+# wrangler
+
+wrangler.jsonc
