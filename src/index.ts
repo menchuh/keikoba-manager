@@ -1,4 +1,4 @@
-import { Hono, Env as BaseEnv } from 'hono';
+import { Hono, Env } from 'hono';
 import groupRouter from './routes/groups';
 import teamRouter from './routes/teams';
 import authRouter from './routes/auth';
@@ -41,5 +41,14 @@ app.route('/webhook/line', lineWebhookRouter);
 // 指定されたエンドポイントがなかった場合
 //---------------------------
 app.notFound((c) => c.text('お探しのページは見つかりませんでした', 404));
+
+//---------------------------
+// バッチ処理
+//---------------------------
+/*
+const scheduled: ExportedHandlerScheduledHandler<Env> = async (event, env, c) => {
+	c.waitUntil(callExternalApiByOauthClient(env));
+};
+*/
 
 export default app;
