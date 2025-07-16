@@ -2,11 +2,11 @@ import { messagingApi, validateSignature, WebhookEvent } from '@line/bot-sdk';
 import { Context } from 'hono';
 import { CAROUSEL_COLUMN_MAX, JOINABLE_GROUP_COUNT } from '../../const/commons';
 import { AddPracticePhase, ConfirmTemplateAction, EventTypes, UserMode, WithdrawGroupPhase } from '../../const/enums';
-import { getAccount, createAccount, deleteAccountById, updateSession } from '../../models/accounts';
-import { getBelongingGroups, joinGroups, withdrawGroup } from '../../models/account_groups';
-import { getGroupByGroupId, getGroupByGroupIdTeamId } from '../../models/groups';
-import { getPlaceById, getPlacesByTeamId } from '../../models/places';
-import { getPracticesByGroup, isSamePracticeItemExists } from '../../models/practices';
+import { getAccount, createAccount, deleteAccountById, updateSession } from '../models/accounts';
+import { getBelongingGroups, joinGroups, withdrawGroup } from '../models/account_groups';
+import { getGroupByGroupId, getGroupByGroupIdTeamId } from '../models/groups';
+import { getPlaceById, getPlacesByTeamId } from '../models/places';
+import { getPracticesByGroup, isSamePracticeItemExists } from '../models/practices';
 import { Session } from '../type/session';
 import {
 	createAddPracticeAskDateMessage,
@@ -242,9 +242,9 @@ export const processMessage = async (c: Context) => {
 					let practiceGroupItems = [];
 					// 稽古予定の取得
 					for (let groupIdTeamId of groupIdTeamIds) {
-						practiceGroupItems.push(await getPracticesByGroup(groupIdTeamId!, c));
+						practiceGroupItems.push(await getPracticesByGroup(groupIdTeamId!, true, c));
 					}
-					const practiceGroups = practiceGroupItems.filter((p) => p.length !== 0);
+					const practiceGroups = practiceGroupItems.filter((p) => p!.length !== 0);
 
 					if (practiceGroups.length === 0) {
 						// 予定されている稽古がない場合
@@ -257,8 +257,8 @@ export const processMessage = async (c: Context) => {
 						// 予定されている稽古がある場合
 						let practices_text = '';
 						practiceGroups.forEach((x, i, self) => {
-							practices_text += `【${x[0].groupName}】\n`;
-							x.forEach((y) => {
+							practices_text += `【${x![0].groupName}】\n`;
+							x!.forEach((y) => {
 								practices_text += `${getMessageDateFormat(y.date!)} ${y.startTime}〜${y.endTime}@${y.placeName}\n`;
 							});
 							if (i + 1 < self.length) {

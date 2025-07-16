@@ -1,8 +1,8 @@
 import { Context } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq } from 'drizzle-orm';
-import { users } from '../schema/users';
-import { logger } from '../utils/logger';
+import { users } from '../../schema/users';
+import { logger } from '../../utils/logger';
 
 export const getUserById = async (userId: string, c: Context) => {
 	try {

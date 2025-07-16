@@ -1,12 +1,12 @@
 import { Context } from 'hono';
-import { practices } from '../../schema/practices';
 import { ulid } from 'ulid';
-import { createPractice, getPracticesByGroup, isSamePracticeItemExists } from '../../models/practices';
+import { createPractice, getPracticesByGroup, isSamePracticeItemExists } from '../models/practices';
+import { practices } from '../../schema/practices';
 
 export const getPractices = async (c: Context) => {
 	const groupIdTeamId = c.req.param().id;
 
-	const result = await getPracticesByGroup(groupIdTeamId, c);
+	const result = await getPracticesByGroup(groupIdTeamId, false, c);
 	return c.json({ success: true, data: result }, 200);
 };
 

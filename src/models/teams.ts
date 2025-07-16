@@ -1,8 +1,8 @@
 import { Context } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq } from 'drizzle-orm';
-import { teams } from '../schema/teams';
-import { logger } from '../utils/logger';
+import { teams } from '../../schema/teams';
+import { logger } from '../../utils/logger';
 
 /**
  * チームを取得する関数

@@ -10,3 +10,8 @@ export const LIST_LIMIT = 20;
 // フラグの値
 export const BOOL_FLAG_FALSE = 0;
 export const BOOL_FLAG_TRUE = 1;
+
+// 日付のフォーマット
+export const MESSAGE_DATE_FORMAT = 'MM/DD';
+// 曜日
+export const WEEKDAY_ARRAY = ['月', '火', '水', '木', '金', '土', '日'];

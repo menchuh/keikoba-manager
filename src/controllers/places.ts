@@ -1,8 +1,7 @@
 import { Context } from 'hono';
-import { places } from '../../schema/places';
 import { ulid } from 'ulid';
-import { createPlace } from '../../models/places';
-
+import { createPlace } from '../models/places';
+import { places } from '../../schema/places';
 // 登録処理
 export const postPlace = async (c: Context) => {
 	try {

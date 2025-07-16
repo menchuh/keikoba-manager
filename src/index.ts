@@ -1,12 +1,14 @@
 import { Hono, Env } from 'hono';
-import groupRouter from './routes/groups';
-import teamRouter from './routes/teams';
+import { handleScheduledEvent } from './batches/handle_scheduled_event';
 import authRouter from './routes/auth';
-import { jwtAuthMiddleware } from '../middleware/auth';
+import groupRouter from './routes/groups';
 import lineWebhookRouter from './routes/line';
-import userRouter from './routes/users';
-import practiceRouter from './routes/practices';
 import placeRouter from './routes/places';
+import practiceRouter from './routes/practices';
+import scheduledRouter from './routes/scheduled';
+import teamRouter from './routes/teams';
+import userRouter from './routes/users';
+import { jwtAuthMiddleware } from '../middleware/auth';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -38,6 +40,11 @@ app.route('/api/teams', teamRouter);
 app.route('/webhook/line', lineWebhookRouter);
 
 //---------------------------
+// Batch
+//---------------------------
+app.route('/scheduled/*', scheduledRouter);
+
+//---------------------------
 // 指定されたエンドポイントがなかった場合
 //---------------------------
 app.notFound((c) => c.text('お探しのページは見つかりませんでした', 404));
@@ -45,10 +52,11 @@ app.notFound((c) => c.text('お探しのページは見つかりませんでし�
 //---------------------------
 // バッチ処理
 //---------------------------
-/*
 const scheduled: ExportedHandlerScheduledHandler<Env> = async (event, env, c) => {
-	c.waitUntil(callExternalApiByOauthClient(env));
+	c.waitUntil(handleScheduledEvent(event));
 };
-*/
 
-export default app;
+export default {
+	fetch: app.fetch,
+	scheduled,
+};

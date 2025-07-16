@@ -1,8 +1,8 @@
 import { Context } from 'hono';
 import { groups } from '../../schema/groups';
 import { ulid } from 'ulid';
-import { createGroup, deleteGroupById, getGroupByGroupIdTeamId, listGroups, updateGroupById } from '../../models/groups';
-import { getTeamIdByUserId } from '../../models/users';
+import { createGroup, deleteGroupById, getGroupByGroupIdTeamId, listGroups, updateGroupById } from '../models/groups';
+import { getTeamIdByUserId } from '../models/users';
 import { generateGroupId } from '../../utils/stringUtils';
 import { getPayload } from '../../utils/userUtils';
 import { Token } from '../type/token';

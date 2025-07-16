@@ -1,11 +1,12 @@
 import { Context } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { and, eq } from 'drizzle-orm';
-import { practices } from '../schema/practices';
-import { logger } from '../utils/logger';
-import { groups } from '../schema/groups';
-import { places } from '../schema/places';
-import { BOOL_FLAG_FALSE } from '../const/commons';
+import { BOOL_FLAG_FALSE } from '../../const/commons';
+import { practices } from '../../schema/practices';
+import { groups } from '../../schema/groups';
+import { places } from '../../schema/places';
+import { logger } from '../../utils/logger';
+import { isBeforeToday } from '../../utils/stringUtils';
 
 /**
  * グループの練習予定を取得する関数
@@ -13,10 +14,10 @@ import { BOOL_FLAG_FALSE } from '../const/commons';
  * @param c
  * @returns
  */
-export const getPracticesByGroup = async (groupIdTeamId: string, c: Context) => {
+export const getPracticesByGroup = async (groupIdTeamId: string, isFutureOnly: boolean, c: Context) => {
 	try {
 		const db = drizzle(c.env.DB);
-		const results = await db
+		let results = await db
 			.select({
 				date: practices.date,
 				startTime: practices.startTime,
@@ -28,10 +29,14 @@ export const getPracticesByGroup = async (groupIdTeamId: string, c: Context) => 
 			.rightJoin(groups, eq(practices.groupIdTeamId, groups.groupIdTeamId))
 			.rightJoin(places, eq(practices.placeId, places.placeId))
 			.where(and(eq(practices.groupIdTeamId, groupIdTeamId), eq(practices.isDeleted, BOOL_FLAG_FALSE)));
+		if (isFutureOnly) {
+			results = results.filter((r) => {
+				return !isBeforeToday(r.date!);
+			});
+		}
 		return results;
 	} catch (err) {
 		logger.error('Failed to get practices');
-		throw new Error('aaa');
 	}
 };
 
@@ -61,8 +66,6 @@ export const createPractice = async (
 		return result;
 	} catch (err) {
 		logger.error('Failed to create practices');
-		logger.error(err);
-		throw new Error('aaa');
 	}
 };
 
@@ -94,6 +97,49 @@ export const isSamePracticeItemExists = async (groupIdTeamId: string, placeId: s
 		return false;
 	} catch (err) {
 		logger.error('Failed to get practices');
-		throw new Error('aaa');
+	}
+};
+
+/**
+ * 指定した日付の練習を持つグループIDを重複なく取得する関数
+ * @param date
+ * @param c
+ * @returns
+ */
+export const getGroupIdHasDeinedDatePractice = async (date: string, c: Context) => {
+	try {
+		const db = drizzle(c.env.DB);
+		const result = await db.selectDistinct({ groupTeamId: practices.groupIdTeamId }).from(practices).where(eq(practices.date, date));
+		return result;
+	} catch (err) {
+		logger.error('Failed to get practices');
+	}
+};
+
+/**
+ * グループIDと日付で指定し練習を取得する関数
+ * @param groupIdTeamId
+ * @param date
+ * @param c
+ * @returns
+ */
+export const getPracticeByGroupIdAndDate = async (groupIdTeamId: string, date: string, c: Context) => {
+	try {
+		const db = drizzle(c.env.DB);
+		const result = await db
+			.select({
+				date: practices.date,
+				startTime: practices.startTime,
+				endTime: practices.endTime,
+				groupName: groups.name,
+				placeName: places.name,
+			})
+			.from(practices)
+			.rightJoin(groups, eq(practices.groupIdTeamId, groups.groupIdTeamId))
+			.rightJoin(places, eq(practices.placeId, places.placeId))
+			.where(and(eq(practices.date, date), eq(practices.groupIdTeamId, groupIdTeamId), eq(practices.isDeleted, BOOL_FLAG_FALSE)));
+		return result;
+	} catch (err) {
+		logger.error('Failed to get practices');
 	}
 };

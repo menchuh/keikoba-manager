@@ -1,6 +1,6 @@
 import { Context } from 'hono';
 import { sign } from 'hono/jwt';
-import { getUserById } from '../../models/users';
+import { getUserById } from '../models/users';
 
 /**
  * ログイン処理

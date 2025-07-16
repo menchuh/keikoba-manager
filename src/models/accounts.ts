@@ -1,9 +1,9 @@
 import { Context } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq } from 'drizzle-orm';
-import { accounts } from '../schema/accounts';
-import { logger } from '../utils/logger';
-import { Session } from '../src/type/session';
+import { Session } from '../type/session';
+import { accounts } from '../../schema/accounts';
+import { logger } from '../../utils/logger';
 
 export const getAccount = async (accountId: string, c: Context) => {
 	try {

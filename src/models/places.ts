@@ -1,8 +1,8 @@
 import { Context } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq } from 'drizzle-orm';
-import { logger } from '../utils/logger';
-import { places } from '../schema/places';
+import { places } from '../../schema/places';
+import { logger } from '../../utils/logger';
 
 export const getPlacesByTeamId = async (teamId: string, c: Context) => {
 	try {

@@ -1,6 +1,6 @@
 import { Context } from 'hono';
+import { createUser } from '../models/users';
 import { users } from '../../schema/users';
-import { createUser } from '../../models/users';
 
 export const postUser = async (c: Context) => {
 	try {

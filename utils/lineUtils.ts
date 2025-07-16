@@ -1,20 +1,14 @@
 import { PostbackAction, TemplateColumn, TemplateMessage } from '@line/bot-sdk';
 import dayjs from 'dayjs';
-import { BelongingGroup } from '../src/type/belonging_groups';
-import { AddPracticePhase, ConfirmTemplateAction } from '../const/enums';
-import { CAROUSEL_COLUMN_MAX } from '../const/commons';
-import { Place } from '../src/type/places';
-import { SessionData } from '../src/type/session';
 import { Context } from 'hono';
-import { createPractice } from '../models/practices';
 import { ulid } from 'ulid';
 import { logger } from './logger';
-
-//---------------------------
-// 定数
-//---------------------------
-const MESSAGE_DATE_FORMAT = 'MM/DD';
-const WEEKDAY_ARRAY = ['月', '火', '水', '木', '金', '土', '日'];
+import { CAROUSEL_COLUMN_MAX, MESSAGE_DATE_FORMAT, WEEKDAY_ARRAY } from '../const/commons';
+import { AddPracticePhase, ConfirmTemplateAction } from '../const/enums';
+import { BelongingGroup } from '../src/type/belonging_groups';
+import { Place } from '../src/type/places';
+import { SessionData } from '../src/type/session';
+import { createPractice } from '../src/models/practices';
 
 //---------------------------
 // 関数
