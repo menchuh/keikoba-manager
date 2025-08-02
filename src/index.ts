@@ -1,5 +1,6 @@
 import { Hono, Env } from 'hono';
 import { handleScheduledEvent } from './batches/handle_scheduled_event';
+import accountRouter from './routes/account';
 import authRouter from './routes/auth';
 import groupRouter from './routes/groups';
 import lineWebhookRouter from './routes/line';
@@ -29,6 +30,7 @@ app.route('/users', userRouter);
 // middleware
 app.use('/api/*', jwtAuthMiddleware);
 // routes
+app.route('/api/accounts', accountRouter);
 app.route('/api/groups', groupRouter);
 app.route('/api/places', placeRouter);
 app.route('/api/practices', practiceRouter);
@@ -42,7 +44,7 @@ app.route('/webhook/line', lineWebhookRouter);
 //---------------------------
 // Batch
 //---------------------------
-app.route('/scheduled/*', scheduledRouter);
+app.route('/scheduled', scheduledRouter);
 
 //---------------------------
 // 指定されたエンドポイントがなかった場合

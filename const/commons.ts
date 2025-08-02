@@ -13,5 +13,6 @@ export const BOOL_FLAG_TRUE = 1;
 
 // 日付のフォーマット
 export const MESSAGE_DATE_FORMAT = 'MM/DD';
+export const TABLE_DATE_FORMAT = 'YYYY-MM-DD';
 // 曜日
 export const WEEKDAY_ARRAY = ['月', '火', '水', '木', '金', '土', '日'];

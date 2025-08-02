@@ -1,9 +1,9 @@
 import { messagingApi } from '@line/bot-sdk';
 import dayjs from 'dayjs';
 import { Context } from 'hono';
-import { MESSAGE_DATE_FORMAT } from '../../const/commons';
+import { MESSAGE_DATE_FORMAT, TABLE_DATE_FORMAT } from '../../const/commons';
 import { listBelongingAccounts } from '../models/account_groups';
-import { getGroupIdHasDeinedDatePractice, getPracticeByGroupIdAndDate } from '../models/practices';
+import { getGroupIdHasDeinedDatePractice, getPracticeByGroupIdAndDate, setNotifiedPracice } from '../models/practices';
 import { logger } from '../../utils/logger';
 
 // 日次で翌日の練習を通知する関数
@@ -21,6 +21,7 @@ export const notifyDailyPractice = async (c: Context) => {
 			[key: string]: {
 				accounts: string[];
 				message?: string;
+				practices?: string[];
 			};
 		} = {};
 
@@ -34,7 +35,7 @@ export const notifyDailyPractice = async (c: Context) => {
 		//---------------------------
 		// 明日の練習があるグループを取得する
 		//---------------------------
-		const tomorrow = dayjs().add(1, 'day').format(MESSAGE_DATE_FORMAT);
+		const tomorrow = dayjs().add(1, 'day').format(TABLE_DATE_FORMAT);
 		const groupTeamIds = (await getGroupIdHasDeinedDatePractice(tomorrow, c))?.map((r) => r.groupTeamId);
 		if (!groupTeamIds || groupTeamIds.length === 0) {
 			logger.info('No groups have practice.');
@@ -66,10 +67,11 @@ export const notifyDailyPractice = async (c: Context) => {
 			const practices = await getPracticeByGroupIdAndDate(gid, tomorrow, c);
 			if (practices && practices.length !== 0) {
 				for (let p of practices) {
-					message += `${p.groupName}\n${p.date} ${p.startTime} ~ ${p.endTime}@${p.placeName}\n`;
+					message += `${p.groupName}\n${dayjs(p.date).format(MESSAGE_DATE_FORMAT)} ${p.startTime} ~ ${p.endTime}@${p.placeName}\n`;
 				}
 			}
 			data[gid].message = message;
+			data[gid].practices = practices?.map((p) => p.practiceId!);
 		}
 
 		//---------------------------
@@ -78,9 +80,19 @@ export const notifyDailyPractice = async (c: Context) => {
 		for (let gid of Object.keys(data)) {
 			const { accounts, message } = data[gid];
 			for (let account of accounts) {
-				client.pushMessage({ to: account, messages: [{ type: 'text', text: message! }] });
+				await client.pushMessage({ to: account, messages: [{ type: 'text', text: message! }] });
 			}
 		}
+
+		logger.info('FINISH SEND MESSAGES');
+
+		//---------------------------
+		// 練習に通知済みフラグを立てる
+		//---------------------------
+		const practiceIds = Object.keys(data)
+			.map((gid) => data[gid].practices!)
+			.flat();
+		await setNotifiedPracice(practiceIds, c);
 
 		logger.info('FINISH NOTIFY DAILY PRACTICE');
 
