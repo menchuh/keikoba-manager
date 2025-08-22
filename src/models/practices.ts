@@ -7,6 +7,7 @@ import { groups } from '../../schema/groups';
 import { places } from '../../schema/places';
 import { logger } from '../../utils/logger';
 import { isBeforeToday } from '../../utils/stringUtils';
+import { Env } from '../type/env';
 
 /**
  * グループの練習予定を取得する関数
@@ -106,16 +107,17 @@ export const isSamePracticeItemExists = async (groupIdTeamId: string, placeId: s
  * @param c
  * @returns
  */
-export const getGroupIdHasDeinedDatePractice = async (date: string, c: Context) => {
+export const getGroupIdHasDeinedDatePractice = async (date: string, env: Env) => {
 	try {
-		const db = drizzle(c.env.DB);
+		const db = drizzle(env.DB);
 		const result = await db
 			.selectDistinct({ groupTeamId: practices.groupIdTeamId })
 			.from(practices)
 			.where(and(eq(practices.date, date), eq(practices.isNotified, BOOL_FLAG_FALSE)));
 		return result;
 	} catch (err) {
-		logger.error('Failed to get practices');
+		logger.error(err);
+		throw err;
 	}
 };
 
@@ -126,9 +128,9 @@ export const getGroupIdHasDeinedDatePractice = async (date: string, c: Context) 
  * @param c
  * @returns
  */
-export const getPracticeByGroupIdAndDate = async (groupIdTeamId: string, date: string, c: Context) => {
+export const getPracticeByGroupIdAndDate = async (groupIdTeamId: string, date: string, env: Env) => {
 	try {
-		const db = drizzle(c.env.DB);
+		const db = drizzle(env.DB);
 		const result = await db
 			.select({
 				practiceId: practices.practiceId,
@@ -153,9 +155,9 @@ export const getPracticeByGroupIdAndDate = async (groupIdTeamId: string, date: s
  * @param praciceIds
  * @param c
  */
-export const setNotifiedPracice = async (praciceIds: string[], c: Context) => {
+export const setNotifiedPracice = async (praciceIds: string[], env: Env) => {
 	try {
-		const db = drizzle(c.env.DB);
+		const db = drizzle(env.DB);
 		await db.update(practices).set({ isNotified: BOOL_FLAG_TRUE }).where(inArray(practices.practiceId, praciceIds));
 	} catch (err) {
 		logger.error(err);

@@ -1,18 +1,18 @@
 import { messagingApi } from '@line/bot-sdk';
 import dayjs from 'dayjs';
-import { Context } from 'hono';
-import { MESSAGE_DATE_FORMAT, TABLE_DATE_FORMAT } from '../../const/commons';
 import { listBelongingAccounts } from '../models/account_groups';
 import { getGroupIdHasDeinedDatePractice, getPracticeByGroupIdAndDate, setNotifiedPracice } from '../models/practices';
+import { Env } from '../type/env';
+import { MESSAGE_DATE_FORMAT, TABLE_DATE_FORMAT } from '../../const/commons';
 import { logger } from '../../utils/logger';
 
 // 日次で翌日の練習を通知する関数
-export const notifyDailyPractice = async (c: Context) => {
+export const notifyDailyPractice = async (env: Env) => {
 	try {
 		//---------------------------
 		// 環境変数
 		//---------------------------
-		const accessToken = c.env.CHANNEL_ACCESS_TOKEN as string;
+		const accessToken = env.CHANNEL_ACCESS_TOKEN as string;
 
 		//---------------------------
 		// データを格納するオブジェクトの生成
@@ -36,18 +36,18 @@ export const notifyDailyPractice = async (c: Context) => {
 		// 明日の練習があるグループを取得する
 		//---------------------------
 		const tomorrow = dayjs().add(1, 'day').format(TABLE_DATE_FORMAT);
-		const groupTeamIds = (await getGroupIdHasDeinedDatePractice(tomorrow, c))?.map((r) => r.groupTeamId);
+		const groupTeamIds = (await getGroupIdHasDeinedDatePractice(tomorrow, env))?.map((r) => r.groupTeamId);
 		if (!groupTeamIds || groupTeamIds.length === 0) {
 			logger.info('No groups have practice.');
 			logger.info('FINISH NOTIFY DAILY PRACTICE');
-			return c.json({ success: true, data: {} }, 200);
+			return null;
 		}
 
 		//---------------------------
 		// グループごとにアカウントを取得
 		//---------------------------
 		for (let g of groupTeamIds) {
-			const accounts = await listBelongingAccounts(g, c);
+			const accounts = await listBelongingAccounts(g, env);
 			if (accounts && accounts.length !== 0) {
 				data[g] = { accounts: accounts.map((a) => a.accountId) };
 			}
@@ -56,7 +56,7 @@ export const notifyDailyPractice = async (c: Context) => {
 		if (Object.keys(data).every((gid) => data[gid].accounts.length === 0)) {
 			logger.info('No member to notify practice.');
 			logger.info('FINISH NOTIFY DAILY PRACTICE');
-			return c.json({ success: true, data: {} }, 200);
+			return null;
 		}
 
 		//---------------------------
@@ -64,7 +64,7 @@ export const notifyDailyPractice = async (c: Context) => {
 		//---------------------------
 		for (let gid of Object.keys(data)) {
 			let message = `明日は以下の練習が予定されています\nがんばりましょう!\n`;
-			const practices = await getPracticeByGroupIdAndDate(gid, tomorrow, c);
+			const practices = await getPracticeByGroupIdAndDate(gid, tomorrow, env);
 			if (practices && practices.length !== 0) {
 				for (let p of practices) {
 					message += `${p.groupName}\n${dayjs(p.date).format(MESSAGE_DATE_FORMAT)} ${p.startTime} ~ ${p.endTime}@${p.placeName}\n`;
@@ -92,13 +92,13 @@ export const notifyDailyPractice = async (c: Context) => {
 		const practiceIds = Object.keys(data)
 			.map((gid) => data[gid].practices!)
 			.flat();
-		await setNotifiedPracice(practiceIds, c);
+		await setNotifiedPracice(practiceIds, env);
 
 		logger.info('FINISH NOTIFY DAILY PRACTICE');
 
-		return c.json({ success: true, data: {} }, 200);
+		return null;
 	} catch (err) {
-		console.error(err);
-		return c.json({ success: false, error: 'データ取得に失敗しました。ダメですよ' }, 500);
+		logger.error(err);
+		return null;
 	}
 };

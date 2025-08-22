@@ -1,3 +1,6 @@
+// ベースとなるURL
+export const BASE_URL = 'https://keikoba-manager-3.menchhibino.workers.dev';
+
 // 参加可能な座組の数
 export const JOINABLE_GROUP_COUNT = 4;
 

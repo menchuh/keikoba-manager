@@ -1,12 +1,24 @@
+import { randomBytes } from 'crypto';
 import dayjs from 'dayjs';
+
+const defaultCharset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
 
 export const generateGroupId = (length: number): string => {
 	if (!Number.isInteger(length) || length < 1) {
 		throw new Error(`文字の長さが不正です。 ${length}`);
 	}
-	return Math.random()
-		.toString(36)
-		.slice(-1 * length);
+
+	let result = '';
+	while (result.length < length) {
+		const bytes = randomBytes(length);
+
+		for (const byte of bytes) {
+			result += defaultCharset[byte % defaultCharset.length];
+			if (result.length === length) break;
+		}
+	}
+
+	return result;
 };
 
 /**

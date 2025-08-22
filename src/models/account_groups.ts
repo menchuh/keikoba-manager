@@ -5,6 +5,7 @@ import { accountGroups } from '../../schema/account_groups';
 import { groups } from '../../schema/groups';
 import { teams } from '../../schema/teams';
 import { logger } from '../../utils/logger';
+import { Env } from '../type/env';
 
 export const getBelongingGroups = async (accountId: string, c: Context) => {
 	try {
@@ -39,9 +40,9 @@ export const withdrawGroup = async (groupIdTeamId: string, accountId: string, c:
 	}
 };
 
-export const listBelongingAccounts = async (groupIdTeamId: string, c: Context) => {
+export const listBelongingAccounts = async (groupIdTeamId: string, env: Env) => {
 	try {
-		const db = drizzle(c.env.DB);
+		const db = drizzle(env.DB);
 		const results = await db.select().from(accountGroups).where(eq(accountGroups.groupIdTeamId, groupIdTeamId));
 		return results;
 	} catch (err) {

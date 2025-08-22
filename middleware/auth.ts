@@ -2,8 +2,6 @@ import { Context, Next } from 'hono';
 import { verify } from 'hono/jwt';
 import { logger } from '../utils/logger';
 
-const JWT_SECRET = 'default-secret';
-
 /**
  * JWT検証をするミドルウェア
  * @param c

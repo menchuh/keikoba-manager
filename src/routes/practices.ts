@@ -5,6 +5,6 @@ const practiceRouter = new Hono();
 
 practiceRouter.post(practiceControllers.postPractices);
 
-practiceRouter.get('/:id', practiceControllers.postPractices);
+practiceRouter.get('/:id', practiceControllers.getPractices);
 
 export default practiceRouter;

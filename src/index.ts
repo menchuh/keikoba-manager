@@ -6,7 +6,6 @@ import groupRouter from './routes/groups';
 import lineWebhookRouter from './routes/line';
 import placeRouter from './routes/places';
 import practiceRouter from './routes/practices';
-import scheduledRouter from './routes/scheduled';
 import teamRouter from './routes/teams';
 import userRouter from './routes/users';
 import { jwtAuthMiddleware } from '../middleware/auth';
@@ -42,11 +41,6 @@ app.route('/api/teams', teamRouter);
 app.route('/webhook/line', lineWebhookRouter);
 
 //---------------------------
-// Batch
-//---------------------------
-app.route('/scheduled', scheduledRouter);
-
-//---------------------------
 // 指定されたエンドポイントがなかった場合
 //---------------------------
 app.notFound((c) => c.text('お探しのページは見つかりませんでした', 404));
@@ -55,7 +49,7 @@ app.notFound((c) => c.text('お探しのページは見つかりませんでし�
 // バッチ処理
 //---------------------------
 const scheduled: ExportedHandlerScheduledHandler<Env> = async (event, env, c) => {
-	c.waitUntil(handleScheduledEvent(event));
+	c.waitUntil(handleScheduledEvent(event, env));
 };
 
 export default {
